@@ -11,7 +11,7 @@ export default function Registration() {
 
   const [loginStatus, setLoginStatus] = useState("");
 
-  // Axios.defaults.withCredentials = true;
+  Axios.defaults.withCredentials = true;
 
   const register = () => {
     Axios.post("http://localhost:3001/register", {
@@ -54,13 +54,14 @@ export default function Registration() {
   //   });
   // };
 
-  // useEffect(() => {
-  //   fetch("http://localhost:3306/login").then((response) => {
-  //     if (response.data.loggedIn === true) {
-  //       setLoginStatus(response.data.user[0].email);
-  //     }
-  //   });
-  // }, []);
+  useEffect(() => {
+    Axios.get("http://localhost:3001/login").then((response) => {
+      console.log(response);  
+    if (response.data.loggedIn == true) {
+        setLoginStatus(response.data.user[0].first_name);
+      }
+    });
+  }, []);
 
   return (
     <div className="App">
