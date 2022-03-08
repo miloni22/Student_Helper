@@ -39,21 +39,6 @@ export default function Registration() {
     });
   };
 
-  // const login = () => {
-  //   alert(password);
-  //   Axios.post("http://localhost:3306/login", {
-  //     username: username,
-  //     password: password,
-  //   }).then((response) => {
-  //     alert("got response");
-  //     if (response.data.message) {
-  //       setLoginStatus(response.data.message);
-  //     } else {
-  //       setLoginStatus(response.data[0].email);
-  //     }
-  //   });
-  // };
-
   useEffect(() => {
     Axios.get("http://localhost:3001/login").then((response) => {
       console.log(response);  
