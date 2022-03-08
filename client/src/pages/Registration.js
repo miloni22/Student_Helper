@@ -1,53 +1,70 @@
 import React, { useEffect, useState } from "react";
-import Axios from "axios";
+import Axios from 'axios';
 import "../App.css";
 
 export default function Registration() {
-  // const [usernameReg, setUsernameReg] = useState("");
-  // const [passwordReg, setPasswordReg] = useState("");
+  const [usernameReg, setUsernameReg] = useState("");
+  const [passwordReg, setPasswordReg] = useState("");
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const [loginStatus, setLoginStatus] = useState("");
 
-  Axios.defaults.withCredentials = true;
+  // Axios.defaults.withCredentials = true;
 
-  // const register = () => {
-  //   Axios.post("http://localhost:3306/register", {
-  //     username: usernameReg,
-  //     password: passwordReg,
-  //   }).then((response) => {
-  //     console.log(response);
-  //   });
-  // };
-
-  const login = () => {
-    alert(password);
-    Axios.post("http://localhost:3306/login", {
-      username: username,
-      password: password,
+  const register = () => {
+    Axios.post("http://localhost:3001/register", {
+      username: usernameReg,
+      password: passwordReg,
+      fname: "MiloniTest",
+      lname:"MILONITEST",
     }).then((response) => {
-      alert("got response");
-      if (response.data.message) {
-        setLoginStatus(response.data.message);
-      } else {
-        setLoginStatus(response.data[0].email);
-      }
+      console.log(response);
     });
   };
 
-  useEffect(() => {
-    fetch("http://localhost:3306/login").then((response) => {
-      if (response.data.loggedIn === true) {
-        setLoginStatus(response.data.user[0].email);
+  const login = () => {
+    Axios.post("http://localhost:3001/login", {
+      username: username,
+      password: password,
+    }).then((response) => {
+      if(response.data.message){
+        setLoginStatus(response.data.message)
       }
+      else{
+        setLoginStatus(response.data[0].first_name)
+      }
+      console.log(response);
     });
-  }, []);
+  };
+
+  // const login = () => {
+  //   alert(password);
+  //   Axios.post("http://localhost:3306/login", {
+  //     username: username,
+  //     password: password,
+  //   }).then((response) => {
+  //     alert("got response");
+  //     if (response.data.message) {
+  //       setLoginStatus(response.data.message);
+  //     } else {
+  //       setLoginStatus(response.data[0].email);
+  //     }
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   fetch("http://localhost:3306/login").then((response) => {
+  //     if (response.data.loggedIn === true) {
+  //       setLoginStatus(response.data.user[0].email);
+  //     }
+  //   });
+  // }, []);
 
   return (
     <div className="App">
-      {/* <div className="registration">
+      <div className="registration">
         <h1>Registration</h1>
         <label>Username</label>
         <input
@@ -64,7 +81,7 @@ export default function Registration() {
           }}
         />
         <button onClick={register}> Register </button>
-      </div> */}
+      </div>
 
       <div className="login">
         <h1>Login</h1>
@@ -85,7 +102,7 @@ export default function Registration() {
         <button onClick={login}> Login </button>
       </div>
 
-      {/* <h1>{loginStatus}</h1> */}
+      <h1>{loginStatus}</h1>
     </div>
   );
 }
