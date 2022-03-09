@@ -54,18 +54,18 @@ const db = mysql.createConnection({
 });
 
 
-  // db.connect(function(err) {
+  db.connect(function(err) {
     
-  //   console.log("db connected");
-  //   if (err) throw err;
-  //   db.query("SELECT * FROM users", function (err, result, fields) {
-  //     if (err) throw err;
-  //     console.log(result);
+    console.log("db connected");
+    if (err) throw err;
+    db.query("SELECT * FROM users", function (err, result, fields) {
+      if (err) throw err;
+      console.log(result);
       
-  //   });
-  // });
+    });
+  });
 
-// 
+
 app.post('/register', (req,res)=>{
 
   const username = req.body.username;

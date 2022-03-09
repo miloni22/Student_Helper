@@ -10,7 +10,7 @@ export default function Main() {
 
   Axios.defaults.withCredentials = true;
   useEffect(() => {
-    Axios.get("http://localhost:3306/login").then((response) => {
+    Axios.get("http://localhost:3301/login").then((response) => {
       if (response.data.loggedIn === true) {
         setRole(response.data.user[0].role);
       }

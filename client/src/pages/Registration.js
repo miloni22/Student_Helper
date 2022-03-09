@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Axios from 'axios';
 import "../App.css";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function Registration() {
   const [usernameReg, setUsernameReg] = useState("");
@@ -24,6 +25,9 @@ export default function Registration() {
     });
   };
 
+  
+  let navigate = useNavigate();
+
   const login = () => {
     Axios.post("http://localhost:3001/login", {
       username: username,
@@ -33,9 +37,9 @@ export default function Registration() {
         setLoginStatus(response.data.message)
       }
       else{
+        navigate("/dashboard");
         setLoginStatus(response.data[0].first_name)
       }
-      console.log(response);
     });
   };
 
@@ -88,7 +92,7 @@ export default function Registration() {
         <button onClick={login}> Login </button>
       </div>
 
-      <h1>{loginStatus}</h1>
+      {/* <h1>{loginStatus}</h1> */}
     </div>
   );
 }
