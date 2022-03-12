@@ -47,9 +47,9 @@ app.use(
 );
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'miloni',
-  password: 'mils',
+  host: '0.0.0.0',
+  user: 'sh_admin',
+  password: 'admin',
   database: 'student_helper'
 });
 
@@ -58,7 +58,7 @@ const db = mysql.createConnection({
     
     console.log("db connected");
     if (err) throw err;
-    db.query("SELECT * FROM users", function (err, result, fields) {
+    db.query("SELECT * FROM user", function (err, result, fields) {
       if (err) throw err;
       console.log(result);
       
@@ -74,7 +74,7 @@ app.post('/register', (req,res)=>{
   const lname = req.body.lname;
 
 
-    db.query("INSERT INTO users (email,password,first_name,last_name) VALUES (?,?,?,?)",
+    db.query("INSERT INTO user (email,password,first_name,last_name) VALUES (?,?,?,?)",
       [username,password,fname,lname],
       (err,result) => {
         console.log(err);
@@ -113,7 +113,7 @@ app.post('/login', (req,res)=>{
   const username = req.body.username;
   const password = req.body.password;
 
-  db.query("SELECT * from users where email = ? AND password = ?",
+  db.query("SELECT * from user where email_id = ? AND password = ?",
     [username,password],
     (err,result) => {
       if(err){

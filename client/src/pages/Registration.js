@@ -47,6 +47,7 @@ export default function Registration() {
     Axios.get("http://localhost:3001/login").then((response) => {
       console.log(response);  
     if (response.data.loggedIn == true) {
+        navigate("/dashboard");
         setLoginStatus(response.data.user[0].first_name);
       }
     });
