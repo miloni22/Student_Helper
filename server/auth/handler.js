@@ -64,10 +64,17 @@ async function register({
 }
 
 async function login({ username, password }) {
-    console.log("login api handler ##");
+    console.log("login api handler");
     try {
         const result = await db.query("SELECT * from users where user_id = ? AND password = ?",
         [username,password]);
+        console.log(result);
+        if (result.length == 0)
+        {
+            return util.httpResponse(400, {
+                message: 'Invalid username or password'
+            })
+        }
         const token = jwt.sign({ 
             email: result.email_id,
             userId: result.username,
@@ -80,7 +87,6 @@ async function login({ username, password }) {
         try {
             const result1 = await db.query("UPDATE users SET auth_token = ? WHERE user_id = ?",
                     [token,username]);
-            console.log("logged in");
             return util.httpResponse(200, {
             data: {
                 token: token
@@ -88,6 +94,7 @@ async function login({ username, password }) {
             })
         }
         catch ( err ) {
+            console.log(err);
             throw err;
         }
     } catch ( err ) {

@@ -1,5 +1,6 @@
 'use strict'
 const _ = require('ramda')
+
 const util = require('../util')
 const utils = require('util')
 const mysql = require("mysql");
@@ -24,56 +25,80 @@ function makeDb() {
 const db = makeDb();
 
 async function createProject({
-    studentId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink
-}, ctx) {
-    console.log("createProject handler");
-    const userId = ctx.params.userId;
-    console.log(userId);
-    const projectId = util.generateRandomString(5)
-    try {
-
-        const result = await db.query("INSERT INTO projects (user_id,student_id,project_id, group_id, project_name, domain, description, status, github_link, video_link, gofundme_link) VALUES (?,?,?,?, ?, ?, ?, ?, ?,?,?)",
-            [userId, studentId, projectId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink]);
-    } catch ( err ) {
-        throw err;
+    email, studentId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink
+}) {
+    if (!email || !studentId || !projectName)
+    {
+        console.log("Insufficient Info");
+        return util.httpResponse(400, {
+            message: 'Insufficient Info!'
+        })    
     }
-    return util.httpResponse(200, {
+    try {
+        const result = await db.query("SELECT * from users where email_id = ?", [email]);
+        if (result.length == 0) {
+            return util.httpResponse(400, {
+                message: 'No user with this email found!'
+            })
+        }
+        const projectId = util.generateRandomString(5)
+    
+        try {
+            await db.query("INSERT INTO projects (user_id,student_id,project_id, group_id, project_name, domain, description, status, github_link, video_link, gofundme_link) VALUES (?,?,?,?, ?, ?, ?, ?, ?,?,?)",
+                [result[0].user_id, studentId, projectId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink]);
+            console.log("Query");
+        } catch ( err ) {
+            console.log(err);
+            throw err;
+        }
+        return util.httpResponse(200, {
             message: 'created project successfully'
-    })
-}
-
-async function showAllProjects() {
-    console.log("Show All projects api handler");
-}
-
-async function fetchMyProjects({userId}, ctx) {
-    console.log("Fectchign users projects handler");
-   
-}
-
-async function fetchProject({projectId
-}, ctx) {
-    const userId = ctx.params.userId;
-    console.log(userId);
-    try {
-        const result = await db.query("SELECT * from projects where project_id = ? AND user_id = ?",
-        [projectId,userId]);
-    } catch(err) {
+        })
+    }
+    catch(err) {
         throw err;
     }
-    if(result) {
-        return util.httpResponse(200, result[0]);
+    
+}
+
+async function showAllProjects({}) {
+    console.log("Show All projects API handler");
+    try {
+        const results = await db.query("SELECT * from projects");
+        if (results.length == 0) {
+            return util.httpResponse(404, {
+                message: 'No projects found!'
+            })
+        }
+        const projectArray = [];
+        for (var result of results) {
+           const project = {
+                projectName: result.project_name,
+                description: result.description,
+                domain: result.domain,
+                status: result.status,
+                github: result.github_link,
+                video: result.video_link,
+                owner: result.user_id,
+                studentId: result.student_id,
+                group: result.group_id,
+                funding: result.gofundme_link
+            }
+            projectArray.push(project); 
+        }
+        return util.httpResponse(200, {
+            result: projectArray
+        })
+
     }
-    else {
-        return util.httpResponse(404, {
-            message: 'Project not found'
-        });
+    catch (err) {
+        console.log(err);
+        throw err;
     }
 }
+
 
 module.exports = {
     createProject,
-    showAllProjects,
-    fetchProject,
-    fetchMyProjects
+    showAllProjects
 }

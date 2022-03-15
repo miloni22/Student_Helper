@@ -11,5 +11,7 @@ const router = new Router({
     prefix: '/users'
 })
 router.get('/:userId', handler.getUserDetails)
+router.get('/:userId/projects', handler.fetchMyProjects);
+router.get('/:userId/projects/:projectId', handler.fetchProject);
 
 module.exports = router

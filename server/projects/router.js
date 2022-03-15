@@ -13,7 +13,5 @@ const router = new Router({
 
 router.post('/', handler.createProject)
 router.get('/', handler.showAllProjects)
-router.get('/:projectId', handler.fetchProject);
-router.get('/:userId', handler.fetchMyProjects);
 
 module.exports = router
