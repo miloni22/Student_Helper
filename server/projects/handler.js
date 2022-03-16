@@ -25,39 +25,35 @@ function makeDb() {
 const db = makeDb();
 
 async function createProject({
-    email, studentId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink
+    emails, studentId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink
 }) {
-    if (!email || !studentId || !projectName)
+    console.log("Create Project Handler");
+    if (!emails || !studentId || !projectName)
     {
         console.log("Insufficient Info");
         return util.httpResponse(400, {
             message: 'Insufficient Info!'
         })    
     }
-    try {
-        const result = await db.query("SELECT * from users where email_id = ?", [email]);
-        if (result.length == 0) {
-            return util.httpResponse(400, {
-                message: 'No user with this email found!'
-            })
-        }
-        const projectId = util.generateRandomString(5)
     
-        try {
-            await db.query("INSERT INTO projects (user_id,student_id,project_id, group_id, project_name, domain, description, status, github_link, video_link, gofundme_link) VALUES (?,?,?,?, ?, ?, ?, ?, ?,?,?)",
-                [result[0].user_id, studentId, projectId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink]);
+    const projectId = util.generateRandomString(5)
+    const emailArray = []
+    for (var email of emails) {
+        emailArray.push(email);
+    }
+    
+    try {
+        await db.query("INSERT INTO projects (emails,student_id,project_id, group_id, project_name, domain, description, status, github_link, video_link, gofundme_link) VALUES (?,?,?,?, ?, ?, ?, ?, ?,?,?)",
+                [JSON.stringify(emails), studentId, projectId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink]);
             console.log("Query");
-        } catch ( err ) {
+
+    } catch ( err ) {
             console.log(err);
             throw err;
-        }
-        return util.httpResponse(200, {
+    }
+    return util.httpResponse(200, {
             message: 'created project successfully'
-        })
-    }
-    catch(err) {
-        throw err;
-    }
+    })
     
 }
 
@@ -79,7 +75,7 @@ async function showAllProjects({}) {
                 status: result.status,
                 github: result.github_link,
                 video: result.video_link,
-                owner: result.user_id,
+                owners: result.emails,
                 studentId: result.student_id,
                 group: result.group_id,
                 funding: result.gofundme_link

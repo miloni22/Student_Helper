@@ -15,6 +15,8 @@ const router = new Router({
     prefix: '/auth'
 })
 
+
+
 router.post('/login', handler.login)
 router.post('/register', handler.register)
 router.use(authorize);

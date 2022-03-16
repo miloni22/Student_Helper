@@ -13,5 +13,6 @@ const router = new Router({
     prefix: '/admin'
 })
 
+
 router.use(authorize)
 module.exports = router

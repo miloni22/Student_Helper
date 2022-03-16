@@ -27,8 +27,8 @@ const db = makeDb();
 
 
 async function getUserDetails({},ctx) {
-    console.log(ctx.params);
-    const userId = ctx.params.userId;
+    console.log("GetUserDetails API handler");
+    const userId = ctx.user.user_id;
     console.log(userId);
     try {
         const result = await db.query("SELECT * from users where user_id = ?", [userId]);
@@ -55,11 +55,11 @@ async function getUserDetails({},ctx) {
     }
 }
 
-async function fetchMyProjects({userId}, ctx) {
+async function fetchMyProjects({email}, ctx) {
     console.log("Fetching users projects API handler");
-    const user = ctx.params.userId;
+
     try {
-        const results = await db.query("SELECT * from projects where user_id = ?", [user]);
+        const results = await db.query("SELECT * from projects LIKE emails = ?", [email]);
         if (results.length == 0) {
             return util.httpResponse(404, {
                 message: 'No projects found!'
