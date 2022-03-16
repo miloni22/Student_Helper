@@ -2,25 +2,10 @@
 
 const mysql = require("mysql");
 const utils = require('util')
+const util = require('../util')
 
-function makeDb() {
-    const connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'admin', 
-        database: 'student_helper'
-      });
-    return {
-      query( sql, args ) {
-        return utils.promisify( connection.query )
-          .call( connection, sql, args );
-      },
-      close() {
-        return utils.promisify( connection.end ).call( connection );
-      }
-    };
-}
-const db = makeDb();
+
+const db = util.db;
 
 async function authorize(ctx, next) {
     if (!ctx.request.header['authorization']) {
