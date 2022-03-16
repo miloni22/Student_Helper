@@ -24,8 +24,8 @@ async function createProject({
     }
     
     try {
-        await db.query("INSERT INTO projects (emails,student_id,project_id, group_id, project_name, domain, description, status, github_link, video_link, gofundme_link) VALUES (?,?,?,?, ?, ?, ?, ?, ?,?,?)",
-                [JSON.stringify(emails), studentId, projectId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink]);
+        await db.query("INSERT INTO projects (emails,student_id,project_id, group_id, project_name, domain, description, status, github_link, video_link, gofundme_link, upvotes) VALUES (?,?,?,?, ?, ?, ?, ?, ?,?,?, ?)",
+                [JSON.stringify(emails), studentId, projectId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink, 0]);
             console.log("Query");
 
     } catch ( err ) {
@@ -50,10 +50,12 @@ async function showAllProjects({}) {
         const projectArray = [];
         for (var result of results) {
            const project = {
+               projectId: result.project_id,
                 projectName: result.project_name,
                 description: result.description,
                 domain: result.domain,
                 status: result.status,
+                upvotes: result.upvotes,
                 github: result.github_link,
                 video: result.video_link,
                 owners: result.emails,
@@ -105,8 +107,32 @@ async function searchProjects({},ctx) {
     }
 }
 
+async function likeProject({projectId}, ctx) {
+    console.log("like project handler");
+    try {
+        const result = await db.query("SELECT upvotes from projects where project_id = ?", [ctx.params.projectId]);
+        if (result.length == 0) {
+            return util.httpResponse(404, {
+                message: 'No projects found!'
+            })
+        }
+        else {
+            const result1 = await db.query("UPDATE projects SET upvotes = ? where project_id = ?", [result[0].upvotes+1, ctx.params.projectId]);
+            return util.httpResponse(200, {
+                message: 'success!'
+            })
+        }
+    }
+    catch(err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+
 module.exports = {
     createProject,
     showAllProjects,
-    searchProjects
+    searchProjects, 
+    likeProject
 }

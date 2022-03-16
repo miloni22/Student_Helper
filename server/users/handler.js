@@ -38,7 +38,9 @@ async function fetchMyProjects({email}, ctx) {
     console.log("Fetching users projects API handler");
 
     try {
-        const results = await db.query("SELECT * from projects LIKE emails = ?", [email]);
+        const emailId = ctx.params.email;
+        var searchQuery = '%' + emailId + '%';
+        const results = await db.query("SELECT * from projects where emails LIKE ?", [searchQuery]);
         if (results.length == 0) {
             return util.httpResponse(404, {
                 message: 'No projects found!'
@@ -47,13 +49,15 @@ async function fetchMyProjects({email}, ctx) {
         const projectArray = [];
         for (var result of results) {
            const project = {
+               projectId: result.project_id,
                 projectName: result.project_name,
                 description: result.description,
                 domain: result.domain,
+                upvotes: result.upvotes,
                 status: result.status,
                 github: result.github_link,
                 video: result.video_link,
-                owner: result.user_id,
+                owners: result.emails,
                 studentId: result.student_id,
                 group: result.group_id,
                 funding: result.gofundme_link
@@ -71,25 +75,29 @@ async function fetchMyProjects({email}, ctx) {
     }
 }
 
-async function fetchProject({userId, projectId
+async function fetchProject({email, projectId
 },ctx) {
     try {
-        console.log("Fetch project by ID API handler");
-        const result = await db.query("SELECT * from projects where project_id = ? AND user_id = ?",
-        [ctx.params.projectId, ctx.params.userId]);
+        console.log("Fetch project by userId and projectId handler");
+        var searchQuery = '%' + ctx.params.email + '%';
+        const result = await db.query("SELECT * from projects where project_id = ? AND emails LIKE ?",
+        [ctx.params.projectId, searchQuery]);
+
         if (result.length == 0) {
             return util.httpResponse(404, {
                 message: 'Project not found'
             });
         }
         const project = {
+            projectId: result[0].project_id,
             projectName: result[0].project_name,
             description: result[0].description,
             domain: result[0].domain,
             status: result[0].status,
+            upvotes: result[0].upvotes,
             github: result[0].github_link,
             video: result[0].video_link,
-            owner: result[0].user_id,
+            owners: result[0].emails,
             studentId: result[0].student_id,
             group: result[0].group_id,
             funding: result[0].gofundme_link

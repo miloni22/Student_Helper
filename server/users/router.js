@@ -17,7 +17,7 @@ const router = new Router({
 
 router.use(authorize);
 router.get('/', handler.getUserDetails)
-router.get('/:userId/projects', handler.fetchMyProjects);
-router.get('/:userId/projects/:projectId', handler.fetchProject);
+router.get('/:email/projects', handler.fetchMyProjects);
+router.get('/:email/projects/:projectId', handler.fetchProject);
 
 module.exports = router

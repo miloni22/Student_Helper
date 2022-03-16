@@ -9,7 +9,7 @@ const utils = require('util')
 function makeDb() {
     const connection = mysql.createConnection({
         host: 'localhost',
-        user: 'sh_admin',
+        user: 'root',
         password: 'admin', 
         database: 'student_helper'
       });
