@@ -9,25 +9,9 @@ const cors = require("cors");
 const crypto = require('crypto')
 const generateRandomString = (length = 10) => crypto.randomBytes(length).toString('hex')
 const jwt = require('jsonwebtoken')
+const db = util.db;
 
-function makeDb() {
-    const connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'admin', 
-        database: 'student_helper'
-      });
-    return {
-      query( sql, args ) {
-        return utils.promisify( connection.query )
-          .call( connection, sql, args );
-      },
-      close() {
-        return utils.promisify( connection.end ).call( connection );
-      }
-    };
-  }
-const db = makeDb();
+
 const jwtKey = generateRandomString(25)
 const jwtExp = 24 * 60 * 60;
 

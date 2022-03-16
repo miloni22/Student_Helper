@@ -3,28 +3,7 @@ const _ = require('ramda')
 
 const util = require('../util')
 const utils = require('util')
-const mysql = require("mysql");
-
-function makeDb() {
-    const connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'admin', 
-        database: 'student_helper'
-      });
-    return {
-      query( sql, args ) {
-        return utils.promisify( connection.query )
-          .call( connection, sql, args );
-      },
-      close() {
-        return utils.promisify( connection.end ).call( connection );
-      }
-    };
-  }
-
-const db = makeDb();
-
+const db = util.db;
 
 async function getUserDetails({},ctx) {
     console.log("GetUserDetails API handler");

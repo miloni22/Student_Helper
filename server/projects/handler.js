@@ -3,26 +3,7 @@ const _ = require('ramda')
 
 const util = require('../util')
 const utils = require('util')
-const mysql = require("mysql");
-
-function makeDb() {
-    const connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'admin', 
-        database: 'student_helper'
-      });
-    return {
-      query( sql, args ) {
-        return utils.promisify( connection.query )
-          .call( connection, sql, args );
-      },
-      close() {
-        return utils.promisify( connection.end ).call( connection );
-      }
-    };
-  }
-const db = makeDb();
+const db = util.db;
 
 async function createProject({
     emails, studentId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink
@@ -93,8 +74,39 @@ async function showAllProjects({}) {
     }
 }
 
+async function searchProjects({},ctx) {
+    console.log(ctx.params);
+    const projectName = ctx.params.projectName;
+    console.log(projectName);
+    try {
+            const results = await db.query("SELECT project_id, project_name FROM projects WHERE project_name like ? ",['%'+projectName+'%']);
+            console.log("Query");
+        if (results.length == 0) {
+            return util.httpResponse(404, {
+                message: 'No projects found!'
+            })
+        }
+        const projectArray = [];
+        for (var result of results) {
+           const project = {
+                projectId: result.project_id,
+                projectName: result.project_name
+            }
+            projectArray.push(project); 
+        }
+        return util.httpResponse(200, {
+            result: projectArray
+        })
+
+    }
+    catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
 
 module.exports = {
     createProject,
-    showAllProjects
+    showAllProjects,
+    searchProjects
 }

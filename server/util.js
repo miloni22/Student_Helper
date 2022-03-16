@@ -2,6 +2,27 @@
 'use strict'
 const _ = require('ramda')
 const crypto = require('crypto')
+const mysql = require("mysql");
+const utils = require('util')
+
+
+function makeDb() {
+    const connection = mysql.createConnection({
+        host: 'localhost',
+        user: 'sh_admin',
+        password: 'admin', 
+        database: 'student_helper'
+      });
+    return {
+      query( sql, args ) {
+        return utils.promisify( connection.query )
+          .call( connection, sql, args );
+      },
+      close() {
+        return utils.promisify( connection.end ).call( connection );
+      }
+    };
+  }
 
 function wrapHandler(handler) {
     return async function (ctx, next) {
@@ -50,8 +71,9 @@ const errorResp = (message) => {
 }
 
 const generateRandomString = (length = 10) => crypto.randomBytes(length).toString('hex')
-
+const db = makeDb()
 module.exports = {
+    db,
     wrapHandlerModule,
     httpResponse,
     sha512,
