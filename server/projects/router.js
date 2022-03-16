@@ -15,6 +15,6 @@ const db = util.db;
 
 router.post('/', handler.createProject)
 router.get('/', handler.showAllProjects)
-router.post('/', handler.searchProjects)
+router.get('/searchProjects/:projectName', handler.searchProjects)
 
 module.exports = router

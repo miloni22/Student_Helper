@@ -77,14 +77,15 @@ async function showAllProjects({}) {
         throw err;
     }
 }
-async function searchProjects({
-    projectName
-}) {
-    console.log("Search projects");
+
+async function searchProjects({},ctx) {
+    console.log(ctx.params);
+    const projectName = ctx.params.projectName;
+    console.log(projectName);
     try {
-            const results = await db.query("SELECT project_id, project_name FROM projects WHERE project_name like ",[projectName]);
+            const results = await db.query("SELECT project_id, project_name FROM projects WHERE project_name like ? ",['%'+projectName+'%']);
             console.log("Query");
-        if (results.length == 0 || projectName == "") {
+        if (results.length == 0) {
             return util.httpResponse(404, {
                 message: 'No projects found!'
             })
