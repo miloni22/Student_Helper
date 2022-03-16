@@ -22,7 +22,9 @@ function makeDb() {
       }
     };
   }
+
 const db = makeDb();
+
 
 async function getUserDetails({},ctx) {
     console.log(ctx.params);
