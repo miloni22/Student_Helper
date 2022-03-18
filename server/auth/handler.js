@@ -47,7 +47,7 @@ async function register({
     })
 }
 
-async function login({ username, password }) {
+async function login({ username, password }, ctx) {
     console.log("login api handler");
     try {
         const result = await db.query("SELECT * from users where user_id = ? AND password = ?",
@@ -71,10 +71,10 @@ async function login({ username, password }) {
         try {
             const result1 = await db.query("UPDATE users SET auth_token = ? WHERE user_id = ?",
                     [token,username]);
+            ctx.user = result[0];
+            ctx.user.auth_token = token;
             return util.httpResponse(200, {
-            data: {
-                token: token
-                }
+                user: ctx.user
             })
         }
         catch ( err ) {

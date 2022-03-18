@@ -1,5 +1,6 @@
 'use strict'
 
+const { createDecipheriv } = require("crypto");
 const mysql = require("mysql");
 const utils = require('util')
 const util = require('../util')
@@ -8,6 +9,7 @@ const util = require('../util')
 const db = util.db;
 
 async function authorize(ctx, next) {
+    console.log("authorized");
     if (!ctx.request.header['authorization']) {
         ctx.status = 401
         ctx.body = {
@@ -17,11 +19,11 @@ async function authorize(ctx, next) {
         }
         return ctx
     }
-    const user = db.query("SELECT * FROM users where authToken = ?",
-      [authToken],
-      (err,result) => {
-        console.log(user);
-        if(!user) {
+    const authToken = ctx.request.header['authorization'];
+    try {
+        const user = await db.query("SELECT * FROM users where auth_token = ?", [authToken]);
+        
+        if(!user[0]) {
             ctx.status = 401
             ctx.body = {
                 data: {
@@ -30,14 +32,16 @@ async function authorize(ctx, next) {
             }
             return ctx;
         }
-        else if(user.length > 0) {
+        else {
             console.log("Found a valid user with auth token");
-            ctx.user = user;
+            ctx.user = user[0];
+            return await next()
         }
     }
-    );
-    ctx.user = user
-    return await next()
+    catch(err) {
+        console.log(err);
+        throw err;
+    }
 }
 
 module.exports = {

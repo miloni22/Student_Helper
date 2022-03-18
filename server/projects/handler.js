@@ -6,39 +6,35 @@ const utils = require('util')
 const db = util.db;
 
 async function createProject({
-    email, studentId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink
+    emails, studentId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink
 }) {
-    if (!email || !studentId || !projectName)
+    console.log("Create Project Handler");
+    if (!emails || !studentId || !projectName)
     {
         console.log("Insufficient Info");
         return util.httpResponse(400, {
             message: 'Insufficient Info!'
         })    
     }
-    try {
-        const result = await db.query("SELECT * from users where email_id = ?", [email]);
-        if (result.length == 0) {
-            return util.httpResponse(400, {
-                message: 'No user with this email found!'
-            })
-        }
-        const projectId = util.generateRandomString(5)
     
-        try {
-            await db.query("INSERT INTO projects (user_id,student_id,project_id, group_id, project_name, domain, description, status, github_link, video_link, gofundme_link) VALUES (?,?,?,?, ?, ?, ?, ?, ?,?,?)",
-                [result[0].user_id, studentId, projectId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink]);
+    const projectId = util.generateRandomString(5)
+    const emailArray = []
+    for (var email of emails) {
+        emailArray.push(email);
+    }
+    
+    try {
+        await db.query("INSERT INTO projects (emails,student_id,project_id, group_id, project_name, domain, description, status, github_link, video_link, gofundme_link, upvotes) VALUES (?,?,?,?, ?, ?, ?, ?, ?,?,?, ?)",
+                [JSON.stringify(emails), studentId, projectId, groupId, projectName, domain, description, status, githubLink, videoLink, goFundMeLink, 0]);
             console.log("Query");
-        } catch ( err ) {
+
+    } catch ( err ) {
             console.log(err);
             throw err;
-        }
-        return util.httpResponse(200, {
+    }
+    return util.httpResponse(200, {
             message: 'created project successfully'
-        })
-    }
-    catch(err) {
-        throw err;
-    }
+    })
     
 }
 
@@ -54,13 +50,15 @@ async function showAllProjects({}) {
         const projectArray = [];
         for (var result of results) {
            const project = {
+               projectId: result.project_id,
                 projectName: result.project_name,
                 description: result.description,
                 domain: result.domain,
                 status: result.status,
+                upvotes: result.upvotes,
                 github: result.github_link,
                 video: result.video_link,
-                owner: result.user_id,
+                owners: result.emails,
                 studentId: result.student_id,
                 group: result.group_id,
                 funding: result.gofundme_link
@@ -109,8 +107,32 @@ async function searchProjects({},ctx) {
     }
 }
 
+async function likeProject({projectId}, ctx) {
+    console.log("like project handler");
+    try {
+        const result = await db.query("SELECT upvotes from projects where project_id = ?", [ctx.params.projectId]);
+        if (result.length == 0) {
+            return util.httpResponse(404, {
+                message: 'No projects found!'
+            })
+        }
+        else {
+            const result1 = await db.query("UPDATE projects SET upvotes = ? where project_id = ?", [result[0].upvotes+1, ctx.params.projectId]);
+            return util.httpResponse(200, {
+                message: 'success!'
+            })
+        }
+    }
+    catch(err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+
 module.exports = {
     createProject,
     showAllProjects,
-    searchProjects
+    searchProjects, 
+    likeProject
 }
