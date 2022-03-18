@@ -8,8 +8,8 @@ const utils = require('util')
 
 function makeDb() {
     const connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
+        host: '0.0.0.0',
+        user: 'sh_admin',
         password: 'admin', 
         database: 'student_helper'
       });
